@@ -34,22 +34,6 @@ Requires **Python 3.7+**. Uses only the standard library (json, os, random, time
 | `Q`           | Save and quit        |
 
 ---
-
-## Project Structure
-
-```
-rps_ai_game/
-├── main.py        ← Game loop — ties everything together
-├── ai_brain.py    ← 🤖 ML engine: Markov Chain prediction
-├── game_logic.py  ← Rules: who wins each round
-├── stats.py       ← Score tracking (session + lifetime)
-├── display.py     ← All terminal UI / printing
-├── memory.json    ← AI's learned patterns (auto-created)
-└── stats.json     ← Lifetime scores (auto-created)
-```
-
----
-
 ## How the AI Works
 
 The AI uses a **Markov Chain** — a simple but real ML concept.

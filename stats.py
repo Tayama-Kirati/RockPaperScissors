@@ -1,8 +1,3 @@
-"""
-stats.py — Tracks scores and session history.
-Also saves/loads lifetime stats from a JSON file.
-"""
-
 import json
 import os
 
@@ -14,9 +9,8 @@ class Stats:
         self.session_wins = 0
         self.session_losses = 0
         self.session_draws = 0
-        self.history = []   # list of dicts: {player, ai, result}
-
-        # Load lifetime stats
+        self.history = []   
+     
         if os.path.exists(self.STATS_FILE):
             try:
                 with open(self.STATS_FILE, "r") as f:
@@ -35,7 +29,6 @@ class Stats:
         self.lifetime_draws = 0
 
     def record(self, result, player_move, ai_move):
-        """Record one round's outcome."""
         self.history.append({
             "round": self.total_rounds() + 1,
             "player": player_move,
@@ -78,14 +71,12 @@ class Stats:
         )
 
     def move_frequency(self):
-        """How often the player chose each move this session."""
         freq = {"Rock": 0, "Paper": 0, "Scissors": 0}
         for h in self.history:
             freq[h["player"]] += 1
         return freq
 
     def save(self):
-        """Persist lifetime stats."""
         with open(self.STATS_FILE, "w") as f:
             json.dump({
                 "wins":   self.lifetime_wins,

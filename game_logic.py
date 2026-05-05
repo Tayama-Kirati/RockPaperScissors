@@ -1,8 +1,3 @@
-"""
-game_logic.py — Pure rules of Rock Paper Scissors.
-No AI, no state — just: who wins?
-"""
-
 RULES = {
     ("Rock",     "Scissors"): "player",
     ("Paper",    "Rock"):     "player",
@@ -29,18 +24,12 @@ MOVE_MAP = {
 
 
 def get_result(player_move, ai_move):
-    """
-    Returns one of: 'player', 'ai', 'draw'
-    """
     if player_move == ai_move:
         return "draw"
     return RULES.get((player_move, ai_move), "draw")
 
 
 def result_message(result, player_move, ai_move):
-    """
-    Build a human-readable result string.
-    """
     pe = EMOJI[player_move]
     ae = EMOJI[ai_move]
 
@@ -53,9 +42,7 @@ def result_message(result, player_move, ai_move):
 
 
 def parse_input(raw):
-    """
-    Accept R/P/S or 1/2/3 or full words. Returns move name or None.
-    """
+    
     cleaned = raw.strip().upper()
     if cleaned in MOVE_MAP:
         return MOVE_MAP[cleaned]
