@@ -24,7 +24,7 @@ def main():
         display.scoreboard(stats, brain)
         raw = input("  Your move: ").strip()
 
-        # ── Special commands ──────────────────────────────────────
+      
         if raw.upper() == "Q":
             display.loading_bar("Saving")
             brain.save()

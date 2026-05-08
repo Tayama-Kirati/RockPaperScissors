@@ -3,27 +3,27 @@ import time
 
 
 def clear():
+    
     os.system("cls" if os.name == "nt" else "clear")
 
 
 def banner():
     print("=" * 52)
-    print("ROCK  PAPER  SCISSORS")
     print("=" * 52)
     print("  The AI learns your patterns and adapts!")
     print("=" * 52)
 
 
-# def menu():
-#     print("\n  Controls:")
-#     print("    R or 1 → Rock")
-#     print("    P or 2 → Paper")
-#     print("    S or 3 → Scissors")
-#     print("    H      → Show move history")
-#     print("    STATS  → Show full stats")
-#     print("    RESET  → Wipe AI memory")
-#     print("    Q      → Save & quit")
-#     print()
+def menu():
+    print("\n  Controls:")
+    print("    R or 1 → Rock")
+    print("    P or 2 → Paper")
+    print("    S or 3 → Scissors")
+    print("    H      → Show move history")
+    print("    STATS  → Show full stats")
+    print("    RESET  → Wipe AI memory")
+    print("    Q      → Save & quit")
+    print()
 
 
 def scoreboard(stats, brain):
@@ -51,9 +51,9 @@ def history_table(stats):
     print(f"  {'─'*38}")
     for h in stats.history[-15:]:   # show last 15 rounds
         result_str = {
-            "player": "You win 🎉",
-            "ai":     "AI wins 🤖",
-            "draw":   "Draw     ",
+            "player": "You win",
+            "ai":     "AI wins",
+            "draw":   "Draw   ",
         }[h["result"]]
         print(f"  {h['round']:>4}  {h['player']:<10} {h['ai']:<10} {result_str}")
     print()
@@ -99,6 +99,6 @@ def full_stats(stats, brain):
 def loading_bar(label="Saving", steps=12, delay=0.04):
     print(f"\n  {label} ", end="", flush=True)
     for _ in range(steps):
-        print(end="", flush=True)
+        print("▓", end="", flush=True)
         time.sleep(delay)
     print(" done!\n")

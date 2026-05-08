@@ -8,9 +8,9 @@ RULES = {
 }
 
 EMOJI = {
-    "Rock":     "🪨",
-    "Paper":    "📄",
-    "Scissors": "✂️ ",
+    "Rock":     "images/rock.png",
+    "Paper":    "images/paper.png",
+    "Scissors": "images/scissors.png",
 }
 
 MOVE_MAP = {
@@ -36,9 +36,9 @@ def result_message(result, player_move, ai_move):
     if result == "draw":
         return f"  {pe} {player_move}  vs  {ae} {ai_move}  →  It's a draw!"
     elif result == "player":
-        return f"  {pe} {player_move}  vs  {ae} {ai_move}  →  You win! 🎉"
+        return f"  {pe} {player_move}  vs  {ae} {ai_move}  →  You win! "
     else:
-        return f"  {pe} {player_move}  vs  {ae} {ai_move}  →  AI wins! 🤖"
+        return f"  {pe} {player_move}  vs  {ae} {ai_move}  →  Computer wins! "
 
 
 def parse_input(raw):

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rock · Paper · Scissors</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+ 
+ <link rel="stylesheet" href="index.css" />
+ 
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#" onclick="showPage('home')">
+  <img 
+  src="images/logo.png"
+  alt="Paper Gesture"
+/>
+  </a>
+  <ul class="nav-links">
+    <li><a onclick="showPage('howtoplay')">How to Play</a></li>
+    <li><a onclick="showPage('history')">History</a></li>
+    <li><a onclick="showPage('leaderboard')">Leadership Board</a></li>
+  </ul>
+  <div class="nav-btns" id="nav-btns">
+    <button class="btn btn-outline" onclick="openAuth('login')">Login</button>
+    <button class="btn btn-purple" onclick="openAuth('register')">Register</button>
+  </div>
+</nav>
+
+ 
+<div class="page active" id="page-home">
+  <section class="hero">
+    <img class="game-img" src="images/home.jpg" alt="RockPaperScissors" />
+    <div class="hero-text">
+      <h1>Welcome to<br>Rock.Paper.Scissors!<br></h1>
+      <p>Rock Paper Scissors is a super fun and easy game you can play against the computer. <br>
+      Choose Rock, Paper, or Scissors, and see who wins! <br>
+      Best of 3 — first to win 2 rounds takes the match!</p>
+      <div class="hero-cta">
+        <button class="btn btn-purple" style="font-size:16px;padding:13px 30px" onclick="startOrLogin()"> Play Now</button>
+        <button class="btn btn-outline" onclick="showPage('howtoplay')">How to Play</button>
+      </div>
+    </div>
+  </section>
+
+  
+  <div class="page active2" id="page-home">
+  <section class="hero2">
+
+    
+    <div class="hero-text">
+
+      <div class="section-title">How to Play:</div>
+      <ul class="how-list">
+        <li><span class="num">1</span> Click on Rock, Paper, or Scissors.</li>
+        <li><span class="num">2</span> The computer will also make its choice.</li>
+        <li><span class="num">3</span> First to win 2 rounds wins the match!</li>
+        <li><span class="num">4</span> The winner is decided instantly!</li>
+      </ul>
+      <br>
+      <div class="section-title">Game Rules:</div>
+     <ul class="how-list">
+        <li><span class="num">1</span>🪨 <strong>Rock beats Scissors</strong> ✂️<br><small>(Rock can smash Scissors)</small></li>
+        <li><span class="num">2</span>✂️ <strong>Scissors beats Paper</strong> 📄<br><small>(Scissors can cut Paper)</small></li>
+        <li><span class="num">3</span>📄 <strong>Paper beats Rock</strong> 🪨<br><small>(Paper can cover Rock)</small></li>
+        <li><span class="num">4</span> If both choose the same thing, it's a <strong>Draw</strong></li>
+      </ul>
+
+    </div>
+
+   
+    <div class="hero-image">
+      <img class="game-img" src="images/howtoplay.jpg" alt="Rock Paper Scissors" />
+    </div>
+
+  </section>
+</div>
+ 
+<div class="page" id="page-howtoplay">
+  <div class="moves-guide">
+    <div class="moves-row">
+      <div class="move-guide-item">
+       <img src="images/scissors.png" alt="Logo" width="142" height ="180" / >
+        <div class="mgi-info">
+          <div class="mgi-name">Scissor</div>
+          <div class="mgi-desc">Hold up two fingers like scissors.</div>
+        </div>
+      </div>
+      <div class="move-guide-item">
+         <img src="images/rock.png" alt="Logo" width="142" height ="180" / >
+        <div class="mgi-info">
+          <div class="mgi-name">Rock</div>
+          <div class="mgi-desc">Make a closed fist.</div>
+        </div>
+      </div>
+      <div class="move-guide-item">
+         <img src="images/paper.png" alt="Logo" width="142" height ="180" / >
+        <div class="mgi-info">
+          <div class="mgi-name">Paper</div>
+          <div class="mgi-desc">Show your open hand with fingers straight.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+ 
+
+
+<!-- ══ GAME PAGE ══ -->
+<div class="page2" id="page-game">
+  <div class="game-page">
+
+    <div class="game-topbar">
+      <div class="game-welcome" id="game-welcome">Let's Play! </div>
+      <div class="game-round-badge" id="round-badge">Round 1 of Best-of-3</div>
+    </div>
+
+    
+    <div class="bo3-tracker">
+      <div class="bo3-side">
+        <div class="bo3-name" id="bo3-you-name">YOU</div>
+        <div class="bo3-pips">
+          <div class="pip you" id="pip-you-0"></div>
+          <div class="pip you" id="pip-you-1"></div>
+        </div>
+      </div>
+      <div class="bo3-vs">VS</div>
+      <div class="bo3-side">
+        <div class="bo3-name">AI</div>
+        <div class="bo3-pips">
+          <div class="pip ai" id="pip-ai-0"></div>
+          <div class="pip ai" id="pip-ai-1"></div>
+        </div>
+      </div>
+    </div>
+
+    
+   <div class="arena-wrap striped">
+
+  <div class="arena-stage">
+
+  <div class="stage-side">
+    <div class="stage-label">User</div>
+    <div class="stage-hand-box" id="hand-you"></div>
+  </div>
+
+  <div class="vs-circle">VS</div>
+
+  <div class="stage-side">
+    <div class="stage-label">Computer</div>
+    <div class="stage-hand-box" id="hand-ai"></div>
+  </div>
+
+</div>
+
+  <div class="result-msg">
+    <div class="rm-inner" id="result-inner"></div>
+  </div>
+
+</div>
+
+    <!-- Choose -->
+    <div class="choose-label">Choose Your Move</div>
+    <div class="choose-grid">
+      <button class="choose-card" onclick="play('Scissors')" id="btn-scissors">
+        <img src="images/scissors.png" alt="Logo" width="142" height ="180" / >
+        <span class="cc-name">Scissor</span>
+        <span class="cc-key">Press S</span>
+      </button>
+      <button class="choose-card" onclick="play('Rock')" id="btn-rock">
+       <img src="images/rock.png" alt="Logo" width="142" height ="180" / >
+        <span class="cc-name">Rock</span>
+        <span class="cc-key">Press R</span>
+      </button>
+      <button class="choose-card" onclick="play('Paper')" id="btn-paper">
+        <<img src="images/paper.png" alt="Logo" width="142" height ="180" / >
+        <span class="cc-name">Paper</span>
+        <span class="cc-key">Press P</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+ 
+<div class="page3" id="page-leaderboard">
+  <div class="lb-page">
+    <div class="lb-title">Leadership Board</div>
+    <div class="lb-subtitle">Top players ranked by win rate (minimum 1 match played)</div>
+    <div id="lb-content"></div>
+  </div>
+</div>
+
+ 
+<div class="page3" id="page-history">
+  <div class="hist-page">
+    <div class="hist-title"> Match History</div>
+    <div class="hist-subtitle" id="hist-subtitle">Your recent matches</div>
+    <div id="hist-content"></div>
+  </div>
+</div>
+ 
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()">✕</button>
+    <div class="modal-title"> Welcome!</div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-login" onclick="switchTab('login')">Login</button>
+      <button class="modal-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+    </div>
+    <div id="auth-form"></div>
+  </div>
+</div>
+
+ 
+<div class="gameover-overlay" id="gameover-overlay">
+  <div class="gameover-card">
+    <div class="gameover-emoji" id="go-emoji">🎉</div>
+    <div class="gameover-title" id="go-title">You Win!</div>
+    <div class="gameover-sub" id="go-sub">Great match!</div>
+    <div class="gameover-score">
+      <div class="gos-block">
+        <div class="gos-num you" id="go-you-score">0</div>
+        <div class="gos-label" id="go-you-label">You</div>
+      </div>
+      <div class="gos-block">
+        <div class="gos-num ai" id="go-ai-score">0</div>
+        <div class="gos-label">AI</div>
+      </div>
+    </div>
+    <div class="gameover-btns">
+      <button class="btn btn-purple" onclick="restartMatch()">🔄 Play Again</button>
+      <button class="btn btn-outline" onclick="showPage('leaderboard')">🏆 Leaderboard</button>
+    </div>
+  </div>
+</div>
+
+ 
+<footer>
+  <div class="footer-inner">
+    <div class="footer-text">
+      <strong>Rock | Paper | Scissors</strong><br>
+      Have fun and challenge your friends!<br>
+      © 2026 Rock Paper Scissors. All rights reserved.
+    </div>
+      
+  <img src="images/logo.png" alt="Logo" width="290" height ="189" / >
+ 
+  </div>
+</footer>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────
+const MOVES = ['Rock','Paper','Scissors'];
+const COUNTER = {Rock:'Paper', Paper:'Scissors', Scissors:'Rock'};
+const EMOJI = {
+  Rock: "images/rock.png",
+  Paper: "images/paper.png",
+  Scissors: "images/scissors.png"
+};
+ 
+
+// Storage helpers
+function loadData(key, def) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch(e) { return def; }
+}
+function saveData(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+}
+
+// Users: { username: { password, wins, losses, draws, matches } }
+let users = loadData('rps_users', {});
+// Current session
+let currentUser = loadData('rps_session', null);
+// AI table per user
+function getTable(username) {
+  return loadData('rps_table_' + username, {
+    Rock:{Rock:0,Paper:0,Scissors:0},
+    Paper:{Rock:0,Paper:0,Scissors:0},
+    Scissors:{Rock:0,Paper:0,Scissors:0}
+  });
+}
+function saveTable(username, table) { saveData('rps_table_' + username, table); }
+
+// Match history per user
+function getHistory(username) { return loadData('rps_hist_' + username, []); }
+function saveHistory(username, hist) { saveData('rps_hist_' + username, hist); }
+
+// ─── GAME STATE ────────────────────────────────────────────────────
+let aiTable = {};
+let lastMove = null;
+let matchYouWins = 0;
+let matchAiWins = 0;
+let roundNum = 0;
+let busy = false;
+let currentMatchHistory = [];
+
+
+function aiPredict(last) {
+  if (!last) return MOVES[Math.floor(Math.random()*3)];
+  const row = aiTable[last];
+  const total = Object.values(row).reduce((a,b)=>a+b,0);
+  if (total===0) return MOVES[Math.floor(Math.random()*3)];
+  const predicted = Object.entries(row).reduce((a,b)=>b[1]>a[1]?b:a)[0];
+  return COUNTER[predicted];
+}
+function aiLearn(last, playerMove) {
+  if (!last) return;
+  aiTable[last][playerMove]++;
+  if (currentUser) saveTable(currentUser, aiTable);
+}
+
+ 
+function openAuth(tab) {
+  switchTab(tab);
+  document.getElementById('auth-modal').classList.add('show');
+}
+function closeAuth() { document.getElementById('auth-modal').classList.remove('show'); }
+function switchTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-register').classList.toggle('active', tab==='register');
+  const f = document.getElementById('auth-form');
+  f.innerHTML = tab === 'login' ? loginForm() : registerForm();
+}
+function loginForm() {
+  return `
+    <div class="form-group"><label>Username</label><input id="au-user" placeholder="Your username" autocomplete="username"></div>
+    <div class="form-group"><label>Password</label><input id="au-pass" type="password" placeholder="Your password" autocomplete="current-password"></div>
+    <div class="form-error" id="auth-err"></div>
+    <button class="btn btn-purple form-submit" onclick="doLogin()">Login →</button>
+  `;
+}
+function registerForm() {
+  return `
+   <div class="form-row">
+
+  <div class="form-group">
+    <label>First Name</label>
+    <input id="first-name" placeholder="First name" autocomplete="given-name">
+  </div>
+
+  <div class="form-group">
+    <label>Last Name</label>
+    <input id="last-name" placeholder="Last name" autocomplete="family-name">
+  </div>
+
+</div>
+    <div class="form-group"><label>Username</label><input id="au-user" placeholder="Choose a username" autocomplete="username"></div>
+    <div class="form-group"><label>Password</label><input id="au-pass" type="password" placeholder="Choose a password" autocomplete="new-password"></div>
+    <div class="form-group"><label>Confirm Password</label><input id="au-pass-confirm" type="password" placeholder="Confirm your password" autocomplete="new-password"></div>
+    <div class="form-error" id="auth-err"></div>
+    <button class="btn btn-purple form-submit" onclick="doRegister()">Create Account →</button>
+  `;
+}
+function doLogin() {
+  const u = document.getElementById('au-user').value.trim();
+  const p = document.getElementById('au-pass').value;
+  if (!u || !p) { document.getElementById('auth-err').textContent = 'Fill in all fields!'; return; }
+  if (!users[u]) { document.getElementById('auth-err').textContent = 'User not found. Register first!'; return; }
+  if (users[u].password !== btoa(p)) { document.getElementById('auth-err').textContent = 'Wrong password!'; return; }
+  loginUser(u);
+}
+function doRegister() {
+  const u = document.getElementById('au-user').value.trim();
+  const p = document.getElementById('au-pass').value;
+  if (!u || !p) { document.getElementById('auth-err').textContent = 'Fill in all fields!'; return; }
+  if (u.length < 2) { document.getElementById('auth-err').textContent = 'Username too short!'; return; }
+  if (p.length < 3) { document.getElementById('auth-err').textContent = 'Password too short!'; return; }
+  if (users[u]) { document.getElementById('auth-err').textContent = 'Username taken!'; return; }
+  users[u] = { password: btoa(p), wins: 0, losses: 0, draws: 0, matches: 0 };
+  saveData('rps_users', users);
+  loginUser(u);
+}
+function loginUser(username) {
+  currentUser = username;
+  saveData('rps_session', username);
+  aiTable = getTable(username);
+  lastMove = null;
+  closeAuth();
+  updateNavBar();
+  showPage('game');
+  initMatch();
+}
+function logout() {
+  currentUser = null;
+  saveData('rps_session', null);
+  updateNavBar();
+  showPage('home');
+}
+function updateNavBar() {
+  const nb = document.getElementById('nav-btns');
+  if (currentUser) {
+    nb.innerHTML = `
+      <div class="user-badge">
+        <div class="user-avatar">${currentUser[0].toUpperCase()}</div>
+        ${currentUser}
+        <button class="logout-btn" onclick="logout()">✕ Logout</button>
+      </div>
+      <button class="btn btn-purple" onclick="showPage('game')">🎮 Play</button>
+    `;
+  } else {
+    nb.innerHTML = `
+      <button class="btn btn-outline" onclick="openAuth('login')">Login</button>
+      <button class="btn btn-purple" onclick="openAuth('register')">Register</button>
+    `;
+  }
+}
+
+ 
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (id === 'leaderboard') renderLeaderboard();
+  if (id === 'history') renderHistory();
+  if (id === 'game' && !currentUser) { openAuth('login'); showPage('home'); }
+}
+function startOrLogin() {
+  if (currentUser) showPage('game');
+  else openAuth('register');
+}
+
+ 
+function initMatch() {
+  matchYouWins = 0;
+  matchAiWins = 0;
+  roundNum = 0;
+  currentMatchHistory = [];
+  lastMove = null;
+  busy = false;
+  resetPips();
+  resetArena();
+  updateRoundBadge();
+  if (currentUser) {
+    document.getElementById('game-welcome').textContent = `Hey ${currentUser}! 🎮`;
+    document.getElementById('bo3-you-name').textContent = currentUser.toUpperCase();
+    document.getElementById('arena-you-name').textContent = currentUser;
+    document.getElementById('go-you-label').textContent = currentUser;
+    aiTable = getTable(currentUser);
+  }
+}
+function resetPips() {
+  for (let i=0;i<2;i++) {
+    document.getElementById('pip-you-'+i).classList.remove('filled');
+    document.getElementById('pip-ai-'+i).classList.remove('filled');
+  }
+}
+function resetArena() {
+  <!-- document.getElementById('hand-you').textContent = '🤔';
+  document.getElementById('hand-ai').textContent = '🤖'; -->
+  document.getElementById('hand-you').className = 'stage-hand-box';
+  document.getElementById('hand-ai').className = 'stage-hand-box';
+  document.getElementById('move-you-name').textContent = '';
+  document.getElementById('move-ai-name').textContent = '';
+  const ri = document.getElementById('result-inner');
+  ri.className = 'rm-inner';
+  ri.textContent = '';
+  enableBtns(true);
+}
+function updateRoundBadge() {
+  document.getElementById('round-badge').textContent = `Round ${roundNum+1} of Best-of-3`;
+}
+
+// ─── PLAY ──────────────────────────────────────────────────────────
+function play(playerMove) {
+  if (busy) return;
+  busy = true;
+  enableBtns(false);
+  roundNum++;
+  updateRoundBadge();
+
+  const aiMove = aiPredict(lastMove);
+  aiLearn(lastMove, playerMove);
+  lastMove = playerMove;
+
+  // Animate hands
+  const hy = document.getElementById('hand-you');
+  const ha = document.getElementById('hand-ai');
+  hy.classList.add('shake');
+  ha.classList.add('shake');
+  setTimeout(() => {
+    hy.classList.remove('shake');
+    ha.classList.remove('shake');
+    hy.textContent = EMOJI[playerMove];
+    ha.textContent = EMOJI[aiMove];
+    document.getElementById('move-you-name').textContent = playerMove;
+    document.getElementById('move-ai-name').textContent = aiMove;
+
+    let result;
+    if (playerMove === aiMove) result = 'draw';
+    else if (
+      (playerMove==='Rock'&&aiMove==='Scissors')||
+      (playerMove==='Paper'&&aiMove==='Rock')||
+      (playerMove==='Scissors'&&aiMove==='Paper')
+    ) result = 'win';
+    else result = 'lose';
+
+    showRoundResult(result, playerMove, aiMove, hy, ha);
+  }, 400);
+}
+
+function showRoundResult(result, pm, am, hy, ha) {
+  const ri = document.getElementById('result-inner');
+  ri.className = 'rm-inner';
+  ri.textContent = '';
+
+  if (result === 'win') {
+    hy.classList.add('win-glow');
+    ha.classList.add('lose-glow');
+    matchYouWins++;
+    fillPip('you', matchYouWins - 1);
+    ri.textContent = '🎉 You Win this Round!';
+    ri.classList.add('show','win');
+  } else if (result === 'lose') {
+    ha.classList.add('win-glow');
+    hy.classList.add('lose-glow');
+    matchAiWins++;
+    fillPip('ai', matchAiWins - 1);
+    ri.textContent = '🤖 AI Wins this Round!';
+    ri.classList.add('show','lose');
+  } else {
+    ri.textContent = '🤝 Draw!';
+    ri.classList.add('show','draw');
+  }
+
+  currentMatchHistory.push({ round: roundNum, player: pm, ai: am, result });
+
+  // Check if match is over
+  if (matchYouWins === 2 || matchAiWins === 2) {
+    setTimeout(() => endMatch(), 900);
+  } else {
+    setTimeout(() => {
+      resetArena();
+      busy = false;
+    }, 1100);
+  }
+}
+
+function fillPip(who, idx) {
+  document.getElementById('pip-'+who+'-'+idx).classList.add('filled');
+}
+
+function endMatch() {
+  const youWon = matchYouWins === 2;
+  // Update user stats
+  if (currentUser) {
+    const u = users[currentUser];
+    u.matches = (u.matches||0) + 1;
+    if (youWon) u.wins = (u.wins||0) + 1;
+    else u.losses = (u.losses||0) + 1;
+    saveData('rps_users', users);
+    // Save history
+    const hist = getHistory(currentUser);
+    hist.unshift({ date: Date.now(), rounds: currentMatchHistory, youWins: matchYouWins, aiWins: matchAiWins, winner: youWon ? 'you' : 'ai' });
+    saveHistory(currentUser, hist.slice(0,50));
+  }
+
+  // Show game over modal
+  document.getElementById('go-emoji').textContent = youWon ? '🎉' : '😅';
+  document.getElementById('go-title').textContent = youWon ? 'You Win the Match!' : 'AI Wins the Match!';
+  document.getElementById('go-sub').textContent = youWon ? `Great job, ${currentUser||'player'}!` : 'Better luck next time!';
+  document.getElementById('go-you-score').textContent = matchYouWins;
+  document.getElementById('go-ai-score').textContent = matchAiWins;
+
+  document.getElementById('gameover-overlay').classList.add('show');
+  if (youWon) launchConfetti();
+}
+
+function restartMatch() {
+  document.getElementById('gameover-overlay').classList.remove('show');
+  initMatch();
+}
+
+function enableBtns(on) {
+  ['rock','paper','scissors'].forEach(m => {
+    const b = document.getElementById('btn-'+m);
+    b.disabled = !on;
+  });
+}
+
+// CONFETTI  
+function launchConfetti() {
+  const colors = ['#7B4FBF','#f5c842','#5af5a0','#f55a8a','#5ab4f5','#C8A8E8'];
+  for (let i=0;i<60;i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left:${Math.random()*100}vw;
+      top:-20px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${6+Math.random()*8}px;
+      height:${6+Math.random()*8}px;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      animation-delay:${Math.random()*1}s;
+      animation-duration:${2+Math.random()*1.5}s;
+    `;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 4000);
+  }
+}
+
+// LEADERBOARD  
+function renderLeaderboard() {
+  const lbc = document.getElementById('lb-content');
+  const entries = Object.entries(users)
+    .filter(([,u]) => (u.matches||0) > 0)
+    .map(([name, u]) => ({
+      name,
+      wins: u.wins||0,
+      losses: u.losses||0,
+      matches: u.matches||0,
+      winrate: u.matches > 0 ? Math.round((u.wins||0)/u.matches*100) : 0
+    }))
+    .sort((a,b) => b.winrate - a.winrate || b.wins - a.wins);
+
+  if (entries.length === 0) {
+    lbc.innerHTML = `<div class="lb-empty"><div>🏆</div>No players yet! Register and play to appear here.</div>`;
+    return;
+  }
+  const rankClass = ['top-1','top-2','top-3'];
+  const rankBadge = (i) => {
+    if (i===0) return '<span class="rank-badge rank-1">🥇</span>';
+    if (i===1) return '<span class="rank-badge rank-2">🥈</span>';
+    if (i===2) return '<span class="rank-badge rank-3">🥉</span>';
+    return `<span class="rank-badge rank-n">${i+1}</span>`;
+  };
+  lbc.innerHTML = `
+    <table class="lb-table">
+      <thead><tr>
+        <th class="lb-rank">#</th>
+        <th>Player</th>
+        <th>Wins</th>
+        <th>Losses</th>
+        <th>Matches</th>
+        <th>Win Rate</th>
+      </tr></thead>
+      <tbody>
+        ${entries.map((e,i)=>`
+          <tr class="lb-row ${rankClass[i]||''}">
+            <td class="lb-rank">${rankBadge(i)}</td>
+            <td class="lb-name" style="font-weight:800">${e.name}${e.name===currentUser?' <span style="font-size:11px;color:var(--purple)">(you)</span>':''}</td>
+            <td class="lb-wins">✅ ${e.wins}</td>
+            <td class="lb-losses">❌ ${e.losses}</td>
+            <td>${e.matches}</td>
+            <td class="lb-winrate">${e.winrate}%</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// HISTORY 
+function renderHistory() {
+  const hc = document.getElementById('hist-content');
+  const hs = document.getElementById('hist-subtitle');
+  if (!currentUser) {
+    hc.innerHTML = `<div class="hist-empty"><div>🔒</div>Login to see your match history!</div>`;
+    hs.textContent = 'Login to view history';
+    return;
+  }
+  hs.textContent = `${currentUser}'s recent matches`;
+  const hist = getHistory(currentUser);
+  if (hist.length===0) {
+    hc.innerHTML = `<div class="hist-empty"><div>📜</div>No matches played yet. Go play!</div>`;
+    return;
+  }
+  hc.innerHTML = hist.slice(0,20).map((match, mi) => {
+    const date = new Date(match.date).toLocaleDateString();
+    const winnerLabel = match.winner==='you' ? `🎉 ${currentUser} wins` : '🤖 AI wins';
+    const roundRows = match.rounds.map(r => `
+      <div class="hist-item">
+        <span class="hist-round">R${r.round}</span>
+        <div class="hist-moves">
+          ${EMOJI[r.player]} ${r.player}
+          <span class="hm-sep">VS</span>
+          ${EMOJI[r.ai]} ${r.ai}
+        </div>
+        <span class="hist-result ${r.result}">${r.result==='win'?'You Win':r.result==='lose'?'AI Wins':'Draw'}</span>
+      </div>
+    `).join('');
+    return `
+      <div style="margin-bottom:1.5rem">
+        <div class="hist-series-header">Match ${hist.length-mi} · ${date} · ${match.youWins}-${match.aiWins} · ${winnerLabel}</div>
+        ${roundRows}
+      </div>
+    `;
+  }).join('');
+}
+
+ 
+document.addEventListener('keydown', e => {
+  const pg = document.querySelector('.page.active');
+  if (!pg || pg.id !== 'page-game') return;
+  if (busy) return;
+  const k = e.key.toUpperCase();
+  if (k==='R') play('Rock');
+  if (k==='P') play('Paper');
+  if (k==='S') play('Scissors');
+});
+
+ 
+
+ 
+if (currentUser && users[currentUser]) {
+  aiTable = getTable(currentUser);
+  updateNavBar();
+} else {
+  currentUser = null;
+  saveData('rps_session', null);
+}
+</script>
+</body>
+</html>
