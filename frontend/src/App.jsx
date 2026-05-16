@@ -28,7 +28,8 @@ export default function App() {
   const [roundResult, setRoundResult] = useState(null)
   const [shaking, setShaking] = useState(false)
   const [currentMatchHistory, setCurrentMatchHistory] = useState([])
-  const [gameOver, setGameOver] = useState({ show: false, youWon: false, youScore: 0, aiScore: 0 })
+  const [gameOver, setGameOver]         = useState({ show: false, youWon: false, youScore: 0, aiScore: 0 })
+  const [logoutConfirm, setLogoutConfirm] = useState(false)
 
   // ── Routing ───────────────────────────────────────────────────────
 
@@ -59,6 +60,7 @@ export default function App() {
   }
 
   function logout() {
+    setLogoutConfirm(false)
     setCurrentUser(null)
     saveData('rps_session', null)
     setPage('home')
@@ -166,7 +168,7 @@ export default function App() {
   const pages = {
     home:        <Home        startOrLogin={startOrLogin} showPage={showPage} />,
     howtoplay:   <HowToPlay   />,
-    game:        <Game        currentUser={currentUser} matchYouWins={matchYouWins} matchAiWins={matchAiWins} roundNum={roundNum} busy={busy} playerMove={playerMove} aiMove={aiMove} roundResult={roundResult} shaking={shaking} play={play} />,
+    game:        <Game        currentUser={currentUser} matchYouWins={matchYouWins} matchAiWins={matchAiWins} roundNum={roundNum} busy={busy} playerMove={playerMove} aiMove={aiMove} roundResult={roundResult} shaking={shaking} play={play} matchOver={gameOver.show} onNextMatch={restartMatch} />,
     leaderboard: <Leaderboard users={users} currentUser={currentUser} />,
     history:     <History     currentUser={currentUser} />,
     login:       <Login       users={users} loginUser={loginUser} showPage={showPage} />,
@@ -192,7 +194,7 @@ export default function App() {
               <div className="user-badge">
                 <div className="user-avatar">{currentUser[0].toUpperCase()}</div>
                 {currentUser}
-                <button className="logout-btn" onClick={logout}>✕ Logout</button>
+                <button className="logout-btn" onClick={() => setLogoutConfirm(true)}>✕ Logout</button>
               </div>
               <button className="btn btn-purple" onClick={() => showPage('game')}>🎮 Play</button>
             </>
@@ -224,8 +226,21 @@ export default function App() {
             </div>
           </div>
           <div className="gameover-btns">
-            <button className="btn btn-purple" onClick={restartMatch}>🔄 Play Again</button>
+            <button className="btn btn-purple" onClick={restartMatch}>🎮 Next Match</button>
             <button className="btn btn-outline" onClick={() => { setGameOver(g => ({ ...g, show: false })); setPage('leaderboard') }}>🏆 Leaderboard</button>
+          </div>
+        </div>
+      </div>
+
+      {/* LOGOUT CONFIRMATION */}
+      <div className={`gameover-overlay${logoutConfirm ? ' show' : ''}`}>
+        <div className="gameover-card" style={{ maxWidth: 360 }}>
+          <div className="gameover-emoji">👋</div>
+          <div className="gameover-title" style={{ fontSize: 28 }}>Log out?</div>
+          <div className="gameover-sub">You'll need to log back in to save your stats.</div>
+          <div className="gameover-btns">
+            <button className="btn btn-purple" onClick={logout}>Yes, Logout</button>
+            <button className="btn btn-outline" onClick={() => setLogoutConfirm(false)}>Cancel</button>
           </div>
         </div>
       </div>

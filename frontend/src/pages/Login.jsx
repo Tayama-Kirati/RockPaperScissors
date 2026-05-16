@@ -1,7 +1,8 @@
 import { useState } from 'react'
 
 export default function Login({ users, loginUser, showPage }) {
-  const [form, setForm] = useState({ username: '', password: '', error: '' })
+  const [form, setForm]       = useState({ username: '', password: '', error: '' })
+  const [showPass, setShowPass] = useState(false)
 
   function set(field, value) { setForm(f => ({ ...f, [field]: value, error: '' })) }
 
@@ -30,14 +31,19 @@ export default function Login({ users, loginUser, showPage }) {
         </div>
         <div className="form-group">
           <label>Password</label>
-          <input
-            type="password"
-            placeholder="Your password"
-            autoComplete="current-password"
-            value={form.password}
-            onChange={e => set('password', e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && submit()}
-          />
+          <div className="pw-wrap">
+            <input
+              type={showPass ? 'text' : 'password'}
+              placeholder="Your password"
+              autoComplete="current-password"
+              value={form.password}
+              onChange={e => set('password', e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && submit()}
+            />
+            <button className="pw-eye" type="button" onClick={() => setShowPass(v => !v)} tabIndex={-1}>
+              {showPass ? '🙈' : '👁️'}
+            </button>
+          </div>
         </div>
 
         <div className="form-error">{form.error}</div>

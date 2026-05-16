@@ -1,7 +1,9 @@
 import { useState } from 'react'
 
 export default function Register({ users, createUser, showPage }) {
-  const [form, setForm] = useState({ firstName: '', lastName: '', username: '', password: '', confirmPassword: '', error: '' })
+  const [form, setForm]         = useState({ firstName: '', lastName: '', username: '', password: '', confirmPassword: '', error: '' })
+  const [showPass, setShowPass] = useState(false)
+  const [showConf, setShowConf] = useState(false)
 
   function set(field, value) { setForm(f => ({ ...f, [field]: value, error: '' })) }
 
@@ -37,11 +39,34 @@ export default function Register({ users, createUser, showPage }) {
         </div>
         <div className="form-group">
           <label>Password</label>
-          <input type="password" placeholder="Choose a password" autoComplete="new-password" value={form.password} onChange={e => set('password', e.target.value)} />
+          <div className="pw-wrap">
+            <input
+              type={showPass ? 'text' : 'password'}
+              placeholder="Choose a password"
+              autoComplete="new-password"
+              value={form.password}
+              onChange={e => set('password', e.target.value)}
+            />
+            <button className="pw-eye" type="button" onClick={() => setShowPass(v => !v)} tabIndex={-1}>
+              {showPass ? '🙈' : '👁️'}
+            </button>
+          </div>
         </div>
         <div className="form-group">
           <label>Confirm Password</label>
-          <input type="password" placeholder="Confirm your password" autoComplete="new-password" value={form.confirmPassword} onChange={e => set('confirmPassword', e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()} />
+          <div className="pw-wrap">
+            <input
+              type={showConf ? 'text' : 'password'}
+              placeholder="Confirm your password"
+              autoComplete="new-password"
+              value={form.confirmPassword}
+              onChange={e => set('confirmPassword', e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && submit()}
+            />
+            <button className="pw-eye" type="button" onClick={() => setShowConf(v => !v)} tabIndex={-1}>
+              {showConf ? '🙈' : '👁️'}
+            </button>
+          </div>
         </div>
 
         <div className="form-error">{form.error}</div>

@@ -1,10 +1,25 @@
-const RANK_CLASS = ['top-1', 'top-2', 'top-3']
+const PODIUM = [
+  { bg: '#FFD700', shadow: '#e6b800', label: '1st Place', crown: '👑' },
+  { bg: '#C0C0C0', shadow: '#a8a8a8', label: '2nd Place', crown: '🥈' },
+  { bg: '#CD7F32', shadow: '#b06a22', label: '3rd Place', crown: '🥉' },
+]
 
-function RankBadge({ index }) {
-  if (index === 0) return <span className="rank-badge rank-1">🥇</span>
-  if (index === 1) return <span className="rank-badge rank-2">🥈</span>
-  if (index === 2) return <span className="rank-badge rank-3">🥉</span>
-  return <span className="rank-badge rank-n">{index + 1}</span>
+function WinBar({ winrate }) {
+  const color = winrate >= 70 ? '#5ecb8a' : winrate >= 40 ? '#f5c842' : '#f55a8a'
+  return (
+    <div className="kid-winbar-track">
+      <div className="kid-winbar-fill" style={{ width: `${winrate}%`, background: color }} />
+      <span className="kid-winbar-label">{winrate}%</span>
+    </div>
+  )
+}
+
+function Avatar({ name, size = 52, isYou }) {
+  return (
+    <div className="kid-avatar" style={{ width: size, height: size, fontSize: size * 0.45, background: isYou ? '#7B4FBF' : '#9B6FDF' }}>
+      {name[0].toUpperCase()}
+    </div>
+  )
 }
 
 export default function Leaderboard({ users, currentUser }) {
@@ -12,48 +27,65 @@ export default function Leaderboard({ users, currentUser }) {
     .filter(([, u]) => (u.matches || 0) > 0)
     .map(([name, u]) => ({
       name,
-      wins: u.wins || 0,
-      losses: u.losses || 0,
+      wins:    u.wins    || 0,
+      losses:  u.losses  || 0,
       matches: u.matches || 0,
       winrate: u.matches > 0 ? Math.round((u.wins || 0) / u.matches * 100) : 0,
     }))
     .sort((a, b) => b.winrate - a.winrate || b.wins - a.wins)
 
   return (
-    <div className="lb-page">
-      <div className="lb-title">Leadership Board</div>
-      <div className="lb-subtitle">Top players ranked by win rate (minimum 1 match played)</div>
+    <div className="kid-page">
+      <div className="kid-page-header">
+        <div className="kid-page-title">🏆 Leaderboard</div>
+        <div className="kid-page-sub">Who is the best player?</div>
+      </div>
 
       {entries.length === 0 ? (
-        <div className="lb-empty"><div>🏆</div>No players yet! Register and play to appear here.</div>
+        <div className="kid-empty">
+          <div className="kid-empty-icon">🏆</div>
+          <div className="kid-empty-text">No one here yet!</div>
+          <div className="kid-empty-hint">Play some games to show up here.</div>
+        </div>
       ) : (
-        <table className="lb-table">
-          <thead>
-            <tr>
-              <th className="lb-rank">#</th>
-              <th>Player</th>
-              <th>Wins</th>
-              <th>Losses</th>
-              <th>Matches</th>
-              <th>Win Rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((e, i) => (
-              <tr key={e.name} className={`lb-row ${RANK_CLASS[i] || ''}`}>
-                <td className="lb-rank"><RankBadge index={i} /></td>
-                <td className="lb-name" style={{ fontWeight: 800 }}>
-                  {e.name}
-                  {e.name === currentUser && <span style={{ fontSize: 11, color: 'var(--purple)' }}> (you)</span>}
-                </td>
-                <td className="lb-wins">✅ {e.wins}</td>
-                <td className="lb-losses">❌ {e.losses}</td>
-                <td>{e.matches}</td>
-                <td className="lb-winrate">{e.winrate}%</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="kid-lb-list">
+          {entries.map((e, i) => {
+            const isYou  = e.name === currentUser
+            const podium = PODIUM[i]
+            return (
+              <div
+                key={e.name}
+                className={`kid-lb-card${isYou ? ' is-you' : ''}${i < 3 ? ' podium' : ''}`}
+                style={podium ? { borderColor: podium.bg, background: `linear-gradient(135deg, ${podium.bg}22, white)` } : {}}
+              >
+                {/* Rank badge */}
+                <div className="kid-lb-rank">
+                  {i < 3
+                    ? <span className="kid-rank-crown">{podium.crown}</span>
+                    : <span className="kid-rank-num">{i + 1}</span>
+                  }
+                </div>
+
+                {/* Avatar + name */}
+                <Avatar name={e.name} isYou={isYou} />
+                <div className="kid-lb-info">
+                  <div className="kid-lb-name">
+                    {e.name}
+                    {isYou && <span className="kid-you-tag">That's you!</span>}
+                  </div>
+                  <WinBar winrate={e.winrate} />
+                </div>
+
+                {/* Stats pills */}
+                <div className="kid-lb-stats">
+                  <div className="kid-stat-pill green">🏅 {e.wins} wins</div>
+                  <div className="kid-stat-pill red">💨 {e.losses} losses</div>
+                  <div className="kid-stat-pill purple">🎮 {e.matches} games</div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       )}
     </div>
   )

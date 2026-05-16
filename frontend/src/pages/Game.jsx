@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { MOVE_IMG } from '../utils'
 import rockImg from '../assets/rock.png'
 import paperImg from '../assets/paper.png'
 import scissorsImg from '../assets/scissors.png'
+import CameraGesture from './CameraGesture'
 
 const CHOICES = [
   { move: 'Scissors', img: scissorsImg, key: 'S' },
@@ -9,7 +11,9 @@ const CHOICES = [
   { move: 'Paper',    img: paperImg,    key: 'P' },
 ]
 
-export default function Game({ currentUser, matchYouWins, matchAiWins, roundNum, busy, playerMove, aiMove, roundResult, shaking, play }) {
+export default function Game({ currentUser, matchYouWins, matchAiWins, roundNum, busy, playerMove, aiMove, roundResult, shaking, play, matchOver, onNextMatch }) {
+  const [showCam, setShowCam] = useState(false)
+
   return (
     <div className="page2">
       <div className="game-page">
@@ -71,7 +75,29 @@ export default function Game({ currentUser, matchYouWins, matchAiWins, roundNum,
             </button>
           ))}
         </div>
+
+        <div className="cam-btn-wrap">
+          <button
+            className="btn btn-outline cam-open-btn"
+            onClick={() => setShowCam(true)}
+            disabled={busy}
+          >
+            📷 Use Hand Gesture
+          </button>
+          {matchOver && (
+            <button className="btn btn-purple cam-open-btn" onClick={onNextMatch}>
+              🎮 Next Match
+            </button>
+          )}
+        </div>
       </div>
+
+      {showCam && (
+        <CameraGesture
+          onGesture={(move) => play(move)}
+          onClose={() => setShowCam(false)}
+        />
+      )}
     </div>
   )
 }
