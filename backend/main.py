@@ -7,8 +7,9 @@ import display
 def main():
     brain = AIBrain()
     stats = Stats()
-    last_move = None          
-    consecutive_wins = 0      
+    last_move = None
+    consecutive_wins = 0
+    consecutive_losses = 0
 
     display.clear()
     display.banner()

@@ -1,5 +1,4 @@
 # RockPaperScissors
-# Rock Paper Scissors — AI Edition 🤖
 
 A beginner-friendly Python project where an AI learns your playing patterns
 using a Markov Chain (a real machine learning technique) and gets better at
