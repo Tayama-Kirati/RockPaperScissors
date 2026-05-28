@@ -1,4 +1,6 @@
-import { getHistory, MOVE_IMG } from '../utils'
+import { useState, useEffect } from 'react'
+import { MOVE_IMG } from '../utils'
+import { apiGetMatches } from '../api'
 
 const MOVE_EMOJI = { Rock: '✊', Paper: '✋', Scissors: '✌️' }
 
@@ -41,7 +43,7 @@ function RoundRow({ r }) {
   )
 }
 
-function MatchCard({ match, matchNum, currentUser }) {
+function MatchCard({ match, matchNum }) {
   const youWon = match.winner === 'you'
   return (
     <div className={`kid-match-card ${youWon ? 'match-win' : 'match-lose'}`}>
@@ -66,6 +68,18 @@ function MatchCard({ match, matchNum, currentUser }) {
 }
 
 export default function History({ currentUser }) {
+  const [historyData, setHistoryData] = useState([])
+  const [loading, setLoading]         = useState(false)
+
+  useEffect(() => {
+    if (!currentUser) return
+    setLoading(true)
+    apiGetMatches()
+      .then(setHistoryData)
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [currentUser])
+
   if (!currentUser) {
     return (
       <div className="kid-page">
@@ -82,8 +96,6 @@ export default function History({ currentUser }) {
     )
   }
 
-  const historyData = getHistory(currentUser)
-
   return (
     <div className="kid-page">
       <div className="kid-page-header">
@@ -91,7 +103,12 @@ export default function History({ currentUser }) {
         <div className="kid-page-sub">Hi {currentUser}! Here are your last games.</div>
       </div>
 
-      {historyData.length === 0 ? (
+      {loading ? (
+        <div className="kid-empty">
+          <div className="kid-empty-icon">⏳</div>
+          <div className="kid-empty-text">Loading…</div>
+        </div>
+      ) : historyData.length === 0 ? (
         <div className="kid-empty">
           <div className="kid-empty-icon">🎮</div>
           <div className="kid-empty-text">No games yet!</div>
@@ -99,12 +116,11 @@ export default function History({ currentUser }) {
         </div>
       ) : (
         <div className="kid-match-list">
-          {historyData.slice(0, 20).map((match, mi) => (
+          {historyData.map((match, mi) => (
             <MatchCard
               key={mi}
               match={match}
               matchNum={historyData.length - mi}
-              currentUser={currentUser}
             />
           ))}
         </div>

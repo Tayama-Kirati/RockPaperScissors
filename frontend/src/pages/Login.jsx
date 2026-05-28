@@ -1,17 +1,26 @@
 import { useState } from 'react'
+import { apiLogin, apiGetMe } from '../api'
 
-export default function Login({ users, loginUser, showPage }) {
-  const [form, setForm]       = useState({ username: '', password: '', error: '' })
+export default function Login({ onAuthSuccess, showPage }) {
+  const [form, setForm]         = useState({ username: '', password: '', error: '' })
   const [showPass, setShowPass] = useState(false)
+  const [loading, setLoading]   = useState(false)
 
   function set(field, value) { setForm(f => ({ ...f, [field]: value, error: '' })) }
 
-  function submit() {
+  async function submit() {
     const { username: u, password: p } = form
-    if (!u || !p)            return setForm(f => ({ ...f, error: 'Fill in all fields!' }))
-    if (!users[u])           return setForm(f => ({ ...f, error: 'User not found. Register first!' }))
-    if (users[u].password !== btoa(p)) return setForm(f => ({ ...f, error: 'Wrong password!' }))
-    loginUser(u)
+    if (!u || !p) return setForm(f => ({ ...f, error: 'Fill in all fields!' }))
+    setLoading(true)
+    try {
+      await apiLogin(u, p)
+      const me = await apiGetMe()
+      onAuthSuccess(me.username)
+    } catch (err) {
+      setForm(f => ({ ...f, error: err.message || 'Login failed' }))
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -41,13 +50,15 @@ export default function Login({ users, loginUser, showPage }) {
               onKeyDown={e => e.key === 'Enter' && submit()}
             />
             <button className="pw-eye" type="button" onClick={() => setShowPass(v => !v)} tabIndex={-1}>
-              {showPass ? '🙈' : '👁️'}
+              {showPass ? '👁️' : '🙈'}
             </button>
           </div>
         </div>
 
         <div className="form-error">{form.error}</div>
-        <button className="btn btn-purple form-submit" onClick={submit}>Login →</button>
+        <button className="btn btn-purple form-submit" onClick={submit} disabled={loading}>
+          {loading ? 'Logging in…' : 'Login →'}
+        </button>
 
         <p className="auth-switch">
           Don't have an account?{' '}

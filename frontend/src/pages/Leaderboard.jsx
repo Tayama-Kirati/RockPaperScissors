@@ -1,3 +1,6 @@
+import { useState, useEffect } from 'react'
+import { apiGetAllUsers } from '../api'
+
 const PODIUM = [
   { bg: '#FFD700', shadow: '#e6b800', label: '1st Place', crown: '👑' },
   { bg: '#C0C0C0', shadow: '#a8a8a8', label: '2nd Place', crown: '🥈' },
@@ -22,17 +25,25 @@ function Avatar({ name, size = 52, isYou }) {
   )
 }
 
-export default function Leaderboard({ users, currentUser }) {
-  const entries = Object.entries(users)
-    .filter(([, u]) => (u.matches || 0) > 0)
-    .map(([name, u]) => ({
-      name,
-      wins:    u.wins    || 0,
-      losses:  u.losses  || 0,
-      matches: u.matches || 0,
-      winrate: u.matches > 0 ? Math.round((u.wins || 0) / u.matches * 100) : 0,
-    }))
-    .sort((a, b) => b.winrate - a.winrate || b.wins - a.wins)
+export default function Leaderboard({ currentUser }) {
+  const [entries, setEntries] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    apiGetAllUsers()
+      .then(rows => {
+        const mapped = rows.map(u => ({
+          name:    u.username,
+          wins:    u.wins    || 0,
+          losses:  u.losses  || 0,
+          matches: u.matches || 0,
+          winrate: u.matches > 0 ? Math.round((u.wins || 0) / u.matches * 100) : 0,
+        })).sort((a, b) => b.winrate - a.winrate || b.wins - a.wins)
+        setEntries(mapped)
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   return (
     <div className="kid-page">
@@ -41,7 +52,12 @@ export default function Leaderboard({ users, currentUser }) {
         <div className="kid-page-sub">Who is the best player?</div>
       </div>
 
-      {entries.length === 0 ? (
+      {loading ? (
+        <div className="kid-empty">
+          <div className="kid-empty-icon">⏳</div>
+          <div className="kid-empty-text">Loading…</div>
+        </div>
+      ) : entries.length === 0 ? (
         <div className="kid-empty">
           <div className="kid-empty-icon">🏆</div>
           <div className="kid-empty-text">No one here yet!</div>
@@ -58,7 +74,6 @@ export default function Leaderboard({ users, currentUser }) {
                 className={`kid-lb-card${isYou ? ' is-you' : ''}${i < 3 ? ' podium' : ''}`}
                 style={podium ? { borderColor: podium.bg, background: `linear-gradient(135deg, ${podium.bg}22, white)` } : {}}
               >
-                {/* Rank badge */}
                 <div className="kid-lb-rank">
                   {i < 3
                     ? <span className="kid-rank-crown">{podium.crown}</span>
@@ -66,7 +81,6 @@ export default function Leaderboard({ users, currentUser }) {
                   }
                 </div>
 
-                {/* Avatar + name */}
                 <Avatar name={e.name} isYou={isYou} />
                 <div className="kid-lb-info">
                   <div className="kid-lb-name">
@@ -76,7 +90,6 @@ export default function Leaderboard({ users, currentUser }) {
                   <WinBar winrate={e.winrate} />
                 </div>
 
-                {/* Stats pills */}
                 <div className="kid-lb-stats">
                   <div className="kid-stat-pill green">🏅 {e.wins} wins</div>
                   <div className="kid-stat-pill red">💨 {e.losses} losses</div>

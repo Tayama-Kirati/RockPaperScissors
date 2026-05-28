@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import logoImg from './assets/logo.png'
-import { loadData, saveData, getTable, saveTable, getHistory, saveHistory, aiPredict, launchConfetti } from './utils'
+import { MOVES, launchConfetti } from './utils'
+import { hasToken, clearToken, apiGetMe, apiPlay, apiSaveMatch } from './api'
 import Home from './pages/Home'
 import HowToPlay from './pages/HowToPlay'
 import Game from './pages/Game'
@@ -11,12 +12,8 @@ import Register from './pages/Register'
 
 export default function App() {
   const [page, setPage] = useState('home')
-  const [currentUser, setCurrentUser] = useState(() => loadData('rps_session', null))
-  const [users, setUsers] = useState(() => loadData('rps_users', {}))
-  const [aiTable, setAiTable] = useState(() => {
-    const user = loadData('rps_session', null)
-    return user ? getTable(user) : {}
-  })
+  const [currentUser, setCurrentUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(hasToken())
 
   const [matchYouWins, setMatchYouWins] = useState(0)
   const [matchAiWins, setMatchAiWins] = useState(0)
@@ -28,11 +25,20 @@ export default function App() {
   const [roundResult, setRoundResult] = useState(null)
   const [shaking, setShaking] = useState(false)
   const [currentMatchHistory, setCurrentMatchHistory] = useState([])
-  const [gameOver, setGameOver]         = useState({ show: false, youWon: false, youScore: 0, aiScore: 0 })
+  const [gameOver, setGameOver] = useState({ show: false, youWon: false, youScore: 0, aiScore: 0 })
   const [logoutConfirm, setLogoutConfirm] = useState(false)
+  const [showUserMenu,  setShowUserMenu]  = useState(false)
+
+  // ── Session restore on mount ───────────────────────────────────────
+  useEffect(() => {
+    if (!hasToken()) { setAuthLoading(false); return }
+    apiGetMe()
+      .then(data => setCurrentUser(data.username))
+      .catch(() => clearToken())
+      .finally(() => setAuthLoading(false))
+  }, [])
 
   // ── Routing ───────────────────────────────────────────────────────
-
   function showPage(id) {
     if (id === 'game' && !currentUser) { setPage('login'); return }
     setPage(id)
@@ -43,108 +49,90 @@ export default function App() {
   }
 
   // ── Auth ──────────────────────────────────────────────────────────
-
-  function loginUser(username) {
+  function onAuthSuccess(username) {
     setCurrentUser(username)
-    saveData('rps_session', username)
-    setAiTable(getTable(username))
     resetGame()
     setPage('game')
   }
 
-  function createUser(username, password) {
-    const newUsers = { ...users, [username]: { password: btoa(password), wins: 0, losses: 0, draws: 0, matches: 0 } }
-    setUsers(newUsers)
-    saveData('rps_users', newUsers)
-    loginUser(username)
-  }
-
   function logout() {
     setLogoutConfirm(false)
+    clearToken()
     setCurrentUser(null)
-    saveData('rps_session', null)
     setPage('home')
   }
 
   // ── Game ──────────────────────────────────────────────────────────
-
   function resetGame() {
     setMatchYouWins(0); setMatchAiWins(0); setRoundNum(0)
     setCurrentMatchHistory([]); setLastMove(null); setBusy(false)
     setPlayerMove(null); setAiMove(null); setRoundResult(null)
   }
 
-  const play = useCallback((pm) => {
+  const play = useCallback(async (pm) => {
     if (busy) return
     setBusy(true)
     const newRound = roundNum + 1
     setRoundNum(newRound)
-
-    const am = aiPredict(aiTable, lastMove)
-
-    let newTable = aiTable
-    if (lastMove) {
-      newTable = { ...aiTable, [lastMove]: { ...aiTable[lastMove], [pm]: (aiTable[lastMove][pm] || 0) + 1 } }
-      setAiTable(newTable)
-      if (currentUser) saveTable(currentUser, newTable)
-    }
-    setLastMove(pm)
     setShaking(true)
 
-    const snapYouWins = matchYouWins
-    const snapAiWins  = matchAiWins
-    const snapHistory = currentMatchHistory
+    const prevLastMove   = lastMove
+    const snapYouWins    = matchYouWins
+    const snapAiWins     = matchAiWins
+    const snapHistory    = currentMatchHistory
+    setLastMove(pm)
 
-    setTimeout(() => {
-      setShaking(false)
-      setPlayerMove(pm)
-      setAiMove(am)
+    // Fire API and animation timer in parallel; reveal once both finish
+    let am, result
+    try {
+      const [data] = await Promise.all([
+        apiPlay(pm, prevLastMove),
+        new Promise(r => setTimeout(r, 400)),
+      ])
+      am     = data.aiMove
+      result = data.result
+    } catch {
+      // Network fallback: random move, compute result locally
+      am     = MOVES[Math.floor(Math.random() * 3)]
+      result = pm === am ? 'draw'
+        : (pm === 'Rock' && am === 'Scissors') || (pm === 'Paper' && am === 'Rock') || (pm === 'Scissors' && am === 'Paper')
+          ? 'win' : 'lose'
+    }
 
-      let result
-      if (pm === am) result = 'draw'
-      else if (
-        (pm === 'Rock' && am === 'Scissors') ||
-        (pm === 'Paper' && am === 'Rock') ||
-        (pm === 'Scissors' && am === 'Paper')
-      ) result = 'win'
-      else result = 'lose'
+    setShaking(false)
+    setPlayerMove(pm)
+    setAiMove(am)
+    setRoundResult(result)
 
-      setRoundResult(result)
+    const newYouWins = result === 'win'  ? snapYouWins + 1 : snapYouWins
+    const newAiWins  = result === 'lose' ? snapAiWins  + 1 : snapAiWins
+    setMatchYouWins(newYouWins)
+    setMatchAiWins(newAiWins)
 
-      const newYouWins = result === 'win' ? snapYouWins + 1 : snapYouWins
-      const newAiWins  = result === 'lose' ? snapAiWins + 1 : snapAiWins
-      setMatchYouWins(newYouWins)
-      setMatchAiWins(newAiWins)
+    const newHistory = [...snapHistory, { round: newRound, player: pm, ai: am, result }]
+    setCurrentMatchHistory(newHistory)
 
-      const newHistory = [...snapHistory, { round: newRound, player: pm, ai: am, result }]
-      setCurrentMatchHistory(newHistory)
-
-      if (newYouWins === 2 || newAiWins === 2) {
-        setTimeout(() => {
-          const youWon = newYouWins === 2
-          if (currentUser) {
-            setUsers(prev => {
-              const updated = { ...prev, [currentUser]: { ...prev[currentUser] } }
-              updated[currentUser].matches = (updated[currentUser].matches || 0) + 1
-              if (youWon) updated[currentUser].wins   = (updated[currentUser].wins   || 0) + 1
-              else        updated[currentUser].losses = (updated[currentUser].losses || 0) + 1
-              saveData('rps_users', updated)
-              return updated
-            })
-            const hist = getHistory(currentUser)
-            hist.unshift({ date: Date.now(), rounds: newHistory, youWins: newYouWins, aiWins: newAiWins, winner: youWon ? 'you' : 'ai' })
-            saveHistory(currentUser, hist.slice(0, 50))
-          }
-          setGameOver({ show: true, youWon, youScore: newYouWins, aiScore: newAiWins })
-          if (youWon) launchConfetti()
-        }, 900)
-      } else {
-        setTimeout(() => {
-          setPlayerMove(null); setAiMove(null); setRoundResult(null); setBusy(false)
-        }, 1100)
-      }
-    }, 400)
-  }, [busy, roundNum, aiTable, lastMove, currentUser, matchYouWins, matchAiWins, currentMatchHistory])
+    if (newYouWins === 2 || newAiWins === 2) {
+      setTimeout(() => {
+        const youWon = newYouWins === 2
+        if (currentUser) {
+          apiSaveMatch({
+            date:    Date.now(),
+            rounds:  newHistory,
+            youWins: newYouWins,
+            aiWins:  newAiWins,
+            winner:  youWon ? 'you' : 'ai',
+          }).catch(() => {})
+        }
+        setGameOver({ show: true, youWon, youScore: newYouWins, aiScore: newAiWins })
+        if (youWon) launchConfetti()
+      }, 900)
+    } else {
+      setTimeout(() => {
+        setPlayerMove(null); setAiMove(null); setRoundResult(null); setBusy(false)
+      }, 1100)
+    }
+  }, [busy, roundNum, lastMove, currentUser, matchYouWins, matchAiWins, currentMatchHistory])
 
   useEffect(() => {
     const handler = (e) => {
@@ -163,20 +151,27 @@ export default function App() {
     resetGame()
   }
 
-  // ── Page map ──────────────────────────────────────────────────────
+  // ── Loading screen while restoring session ────────────────────────
+  if (authLoading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: 20, color: '#7B4FBF' }}>
+        Loading…
+      </div>
+    )
+  }
 
+  // ── Page map ──────────────────────────────────────────────────────
   const pages = {
     home:        <Home        startOrLogin={startOrLogin} showPage={showPage} />,
     howtoplay:   <HowToPlay   />,
     game:        <Game        currentUser={currentUser} matchYouWins={matchYouWins} matchAiWins={matchAiWins} roundNum={roundNum} busy={busy} playerMove={playerMove} aiMove={aiMove} roundResult={roundResult} shaking={shaking} play={play} matchOver={gameOver.show} onNextMatch={restartMatch} />,
-    leaderboard: <Leaderboard users={users} currentUser={currentUser} />,
+    leaderboard: <Leaderboard currentUser={currentUser} />,
     history:     <History     currentUser={currentUser} />,
-    login:       <Login       users={users} loginUser={loginUser} showPage={showPage} />,
-    register:    <Register    users={users} createUser={createUser} showPage={showPage} />,
+    login:       <Login       onAuthSuccess={onAuthSuccess} showPage={showPage} />,
+    register:    <Register    onAuthSuccess={onAuthSuccess} showPage={showPage} />,
   }
 
   // ── Render ────────────────────────────────────────────────────────
-
   return (
     <>
       <nav>
@@ -191,12 +186,19 @@ export default function App() {
         <div className="nav-btns">
           {currentUser ? (
             <>
-              <div className="user-badge">
-                <div className="user-avatar">{currentUser[0].toUpperCase()}</div>
-                {currentUser}
-                <button className="logout-btn" onClick={() => setLogoutConfirm(true)}>✕ Logout</button>
-              </div>
               <button className="btn btn-purple" onClick={() => showPage('game')}>🎮 Play</button>
+              <div className="user-badge" onClick={() => setShowUserMenu(v => !v)}>
+                <div className="user-avatar">{currentUser[0].toUpperCase()}</div>
+                <span>{currentUser}</span>
+                <span className="user-chevron">{showUserMenu ? '▲' : '▼'}</span>
+                {showUserMenu && (
+                  <div className="user-dropdown">
+                    <button onClick={(e) => { e.stopPropagation(); setShowUserMenu(false); setLogoutConfirm(true) }}>
+                      ✕ Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <>

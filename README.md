@@ -1,73 +1,61 @@
-# RockPaperScissors
+# Rock Paper Scissors
 
-A beginner-friendly Python project where an AI learns your playing patterns
-using a Markov Chain (a real machine learning technique) and gets better at
-beating you the more you play.
+A full-stack web app where you play Rock Paper Scissors against an AI that learns your patterns and gets better the more you play.
 
 ---
+
+## Features
+
+- **Adaptive AI** — uses a Markov Chain to study your moves and predict what you'll throw next
+- **User accounts** — register, log in, and your stats are saved across sessions
+- **Match history** — review every match you've played
+- **Leaderboard** — see how you stack up against other players
+- **Best of 3** — first to 2 round wins takes the match
+
+---
+
+ 
+ 
 
 ## Quick Start
 
-```bash
-# 1. Navigate to the folder
-cd rps_ai_game
+### 1. Backend
 
-# 2. Run the game — no pip install needed!
-python main.py
+```bash
+cd backend
+cd backend
+python -m venv venv_server
+source venv_server/bin/activate
+pip install fastapi "uvicorn[standard]"
+uvicorn server:app --reload
+```i
 ```
 
-Requires **Python 3.7+**. Uses only the standard library (json, os, random, time).
+ 
+### 2. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+ 
 
 ---
 
-## Controls
-
-| Input         | Action               |
-|---------------|----------------------|
-| `R` or `1`    | Play Rock            |
-| `P` or `2`    | Play Paper           |
-| `S` or `3`    | Play Scissors        |
-| `H`           | View round history   |
-| `STATS`       | Full stats + AI data |
-| `RESET`       | Wipe AI memory       |
-| `Q`           | Save and quit        |
-
----
 ## How the AI Works
 
-The AI uses a **Markov Chain** — a simple but real ML concept.
-
-It builds a **transition table** that tracks: after you play X, what do you
-tend to play next? For example, after noticing you play Rock → Scissors often,
-it starts playing Rock to counter your likely Scissors.
+The AI tracks what you tend to throw after each move using a **Markov Chain transition table**.
 
 ```
-After Rock     → player most often plays Scissors → AI plays Rock
-After Paper    → player most often plays Paper    → AI plays Scissors
-After Scissors → player most often plays Rock     → AI plays Paper
+After Rock     → you usually throw Scissors → AI throws Rock to beat you
+After Paper    → you usually throw Paper    → AI throws Scissors
+After Scissors → you usually throw Rock     → AI throws Paper
 ```
 
-The AI starts completely random (no data) and improves with each round.
-It saves its memory to `memory.json`, so it remembers you across sessions!
+It starts random with no data and improves every round. Your AI pattern is saved per account.
 
 ---
 
-## Learning Goals
-
-By building this project you'll learn:
-
-- **Classes & OOP** — AIBrain, Stats are reusable objects
-- **File I/O & JSON** — save/load AI memory and scores
-- **Markov Chains** — a foundational ML concept
-- **Modular code** — 5 files, each with one clear job
-- **Game loops** — input → process → output, repeating
-
----
-
-## Ideas to Extend It
-
-1. Add a **GUI** using `tkinter` (Python's built-in UI library)
-2. Swap Markov Chain for **scikit-learn** (Naive Bayes classifier)
-3. Add **difficulty levels** (easy = random, hard = full ML)
-4. Add a **best-of-N** tournament mode
-5. Build a **web version** using Flask or FastAPI
+ 

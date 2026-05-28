@@ -1,20 +1,30 @@
 import { useState } from 'react'
+import { apiRegister, apiGetMe } from '../api'
 
-export default function Register({ users, createUser, showPage }) {
+export default function Register({ onAuthSuccess, showPage }) {
   const [form, setForm]         = useState({ firstName: '', lastName: '', username: '', password: '', confirmPassword: '', error: '' })
   const [showPass, setShowPass] = useState(false)
   const [showConf, setShowConf] = useState(false)
+  const [loading, setLoading]   = useState(false)
 
   function set(field, value) { setForm(f => ({ ...f, [field]: value, error: '' })) }
 
-  function submit() {
+  async function submit() {
     const { username: u, password: p, confirmPassword: cp } = form
-    if (!u || !p)          return setForm(f => ({ ...f, error: 'Fill in all fields!' }))
-    if (u.length < 2)      return setForm(f => ({ ...f, error: 'Username too short!' }))
-    if (p.length < 3)      return setForm(f => ({ ...f, error: 'Password too short!' }))
-    if (p !== cp)          return setForm(f => ({ ...f, error: 'Passwords do not match!' }))
-    if (users[u])          return setForm(f => ({ ...f, error: 'Username already taken!' }))
-    createUser(u, p)
+    if (!u || !p)     return setForm(f => ({ ...f, error: 'Fill in all fields!' }))
+    if (u.length < 2) return setForm(f => ({ ...f, error: 'Username too short!' }))
+    if (p.length < 3) return setForm(f => ({ ...f, error: 'Password too short!' }))
+    if (p !== cp)     return setForm(f => ({ ...f, error: 'Passwords do not match!' }))
+    setLoading(true)
+    try {
+      await apiRegister(u, p)
+      const me = await apiGetMe()
+      onAuthSuccess(me.username)
+    } catch (err) {
+      setForm(f => ({ ...f, error: err.message || 'Registration failed' }))
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -48,7 +58,7 @@ export default function Register({ users, createUser, showPage }) {
               onChange={e => set('password', e.target.value)}
             />
             <button className="pw-eye" type="button" onClick={() => setShowPass(v => !v)} tabIndex={-1}>
-              {showPass ? '🙈' : '👁️'}
+              {showPass ? '👁️' : '🙈'}
             </button>
           </div>
         </div>
@@ -64,13 +74,15 @@ export default function Register({ users, createUser, showPage }) {
               onKeyDown={e => e.key === 'Enter' && submit()}
             />
             <button className="pw-eye" type="button" onClick={() => setShowConf(v => !v)} tabIndex={-1}>
-              {showConf ? '🙈' : '👁️'}
+              {showConf ? '👁️' : '🙈'}
             </button>
           </div>
         </div>
 
         <div className="form-error">{form.error}</div>
-        <button className="btn btn-purple form-submit" onClick={submit}>Create Account →</button>
+        <button className="btn btn-purple form-submit" onClick={submit} disabled={loading}>
+          {loading ? 'Creating account…' : 'Create Account →'}
+        </button>
 
         <p className="auth-switch">
           Already have an account?{' '}

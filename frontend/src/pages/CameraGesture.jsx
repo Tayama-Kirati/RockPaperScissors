@@ -36,18 +36,21 @@ export default function CameraGesture({ onGesture, onClose }) {
   const stableRef   = useRef({ gesture: null, count: 0 })
   const autoTimerRef = useRef(null)   // setTimeout handle for auto-submit
 
-  const [detected,  setDetected]  = useState(null)  // what we see right now
-  const [stable,    setStable]    = useState(null)  // confirmed stable gesture
-  const [countdown, setCountdown] = useState(null)  // seconds left until auto-play
+  const [detected,  setDetected]  = useState(null)
+  const [stable,    setStable]    = useState(null)
+  const [countdown, setCountdown] = useState(null)
+  const [camError,  setCamError]  = useState(null)
+  const [loading,   setLoading]   = useState(true)
 
   useEffect(() => {
     let live = true
 
-    // --- 1. Set up MediaPipe Hands ---
-    // window.Hands, window.Camera etc. are injected by the <script> tags in
-    // index.html — they're not ES module exports so we can't import them.
-    //
-    // locateFile tells MediaPipe where to download its WASM/binary files from.
+    if (!window.Hands || !window.Camera) {
+      setCamError('Hand gesture library failed to load. Check your internet connection and refresh.')
+      setLoading(false)
+      return
+    }
+
     const hands = new window.Hands({
       locateFile: f =>
         `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`,
@@ -133,9 +136,6 @@ export default function CameraGesture({ onGesture, onClose }) {
       setDetected(gesture)
     })
 
-    // --- 4. Set up the camera ---
-    // Camera utility grabs frames from the <video> element and feeds them
-    // to hands.send() on every frame (like a requestAnimationFrame loop).
     const cam = new window.Camera(videoRef.current, {
       onFrame: async () => {
         if (live && videoRef.current) await hands.send({ image: videoRef.current })
@@ -143,7 +143,9 @@ export default function CameraGesture({ onGesture, onClose }) {
       width: 640,
       height: 480,
     })
-    cam.start()
+    cam.start().then(() => { if (live) setLoading(false) }).catch(err => {
+      if (live) { setCamError('Could not access camera: ' + err.message); setLoading(false) }
+    })
 
     // --- 5. Cleanup when the component is closed ---
     return () => {
@@ -160,35 +162,32 @@ export default function CameraGesture({ onGesture, onClose }) {
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-title">Show Your Gesture</div>
 
-        <div className="cam-video-wrap">
-          {/*
-            Video must NOT be display:none — the browser won't play a hidden video.
-            We place it off-screen via CSS (.cam-video-hidden) so it runs
-            but is invisible; the canvas draws its frames instead.
-          */}
-          <video ref={videoRef} className="cam-video-hidden" playsInline />
+        {camError ? (
+          <div className="cam-error">
+            <div style={{ fontSize: 40, marginBottom: 12 }}>📷</div>
+            <div>{camError}</div>
+          </div>
+        ) : (
+          <>
+            <div className="cam-video-wrap">
+              <video ref={videoRef} className="cam-video-hidden" playsInline />
+              <canvas ref={canvasRef} width={640} height={480} className="cam-canvas" />
+              {loading && <div className="cam-loading-overlay">Starting camera…</div>}
+              {countdown !== null && <div className="cam-countdown">{countdown}</div>}
+            </div>
 
-          {/*
-            CSS scaleX(-1) mirrors the canvas so it looks like a selfie camera
-            (left/right flipped) instead of a through-the-window view.
-          */}
-          <canvas ref={canvasRef} width={640} height={480} className="cam-canvas" />
-
-          {/* Big countdown number shown over the video once gesture is locked in */}
-          {countdown !== null && (
-            <div className="cam-countdown">{countdown}</div>
-          )}
-        </div>
-
-        {/* Status badge */}
-        <div className="cam-badge">
-          {stable
-            ? <span className="cam-stable">{GESTURE_EMOJI[stable]} {stable} — hold still! Playing in {countdown}s…</span>
-            : detected
-            ? <span className="cam-detecting">{GESTURE_EMOJI[detected]} Detecting {detected}...</span>
-            : <span className="cam-waiting">Show ✊ Rock &nbsp; ✋ Paper &nbsp; ✌️ Scissors</span>
-          }
-        </div>
+            <div className="cam-badge">
+              {loading
+                ? <span className="cam-waiting">Starting camera…</span>
+                : stable
+                ? <span className="cam-stable">{GESTURE_EMOJI[stable]} {stable} — hold still! Playing in {countdown}s…</span>
+                : detected
+                ? <span className="cam-detecting">{GESTURE_EMOJI[detected]} Detecting {detected}...</span>
+                : <span className="cam-waiting">Show ✊ Rock &nbsp; ✋ Paper &nbsp; ✌️ Scissors</span>
+              }
+            </div>
+          </>
+        )}
 
         <div className="cam-actions">
           <button className="btn btn-outline" onClick={onClose}>Cancel</button>

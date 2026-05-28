@@ -715,24 +715,51 @@ footer {
   font-weight: 800;
   font-size: 14px;
   color: var(--purple);
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
+.user-badge:hover { border-color: var(--purple); box-shadow: 0 2px 12px rgba(123,79,191,0.18); }
 .user-avatar {
-  width: 28px; height: 28px;
+  width: 32px; height: 32px;
   background: var(--purple);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
+  flex-shrink: 0;
 }
-.logout-btn {
-  background: none; border: none; color: var(--text-light);
-  font-size: 12px; cursor: pointer; font-weight: 700;
-  padding: 0 4px; margin-left: 4px;
+.user-chevron { font-size: 10px; color: var(--purple-light); }
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border: 2px solid var(--lavender);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(123,79,191,0.18);
+  min-width: 140px;
+  overflow: hidden;
+  z-index: 300;
 }
-.logout-btn:hover { color: var(--red); }
+.user-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 12px 18px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--red);
+  cursor: pointer;
+}
+.user-dropdown button:hover { background: #fff0f4; }
 
 /* ── Camera gesture detector ─────────────────────────────────────── */
 .cam-btn-wrap {
@@ -773,6 +800,7 @@ footer {
   background: #0e0620;
   margin: 1rem 0;
   line-height: 0;
+  position: relative;
 }
 .cam-video-hidden {
   position: absolute;
@@ -815,6 +843,29 @@ footer {
 }
 .cam-actions   { display: flex; gap: 12px; justify-content: center; }
 .cam-play-btn  { font-size: 17px; padding: 13px 34px; }
+.cam-error {
+  background: #fff0f4;
+  border: 2px solid var(--red);
+  border-radius: 14px;
+  padding: 2rem;
+  margin: 1rem 0;
+  color: var(--red);
+  font-weight: 700;
+  font-size: 15px;
+  text-align: center;
+}
+.cam-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(14, 6, 32, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: var(--display);
+  font-size: 22px;
+  border-radius: 18px;
+}
 
 @media (max-width: 700px) {
   .hero, .hero2 { grid-template-columns: 1fr; text-align: center; }
